@@ -43,7 +43,7 @@
           <div>Qty</div>
         </div>
         <div
-          v-for="item in inventory"
+          v-for="item in playerInventory"
           :key="item.id"
           id="inventorybox"
           class="inventoryText"
@@ -59,6 +59,7 @@
 <script>
 import world from "@/assets/world.js"; // Comprehensive game/state data
 import structuredClone from "@ungap/structured-clone";
+import { Inventory } from "@/models/Inventory.js";
 
 export default {
   components: {},
@@ -70,7 +71,7 @@ export default {
       enemies: [],
       exits: [], // all exits for a location. Only those with visible=true are available.
       texts: [], // game text. Display lines of text by pushing to this array.
-      inventory: [], // player inventory. Appears in its own window.
+      inventory: null, // player inventory. Appears in its own window.
       playerCurrency: 0,
       input: "", // user input.
       inputContext: null,
@@ -138,18 +139,18 @@ export default {
 
       return itemList;
     },
-    inventoryItems() {
-      return this.inventory.map((i) => i.item);
-    },
     locationItemIds() {
       return this.location.items.map((i) => i.id);
     },
     locationItems() {
-      return this.location.items.map(i => {
-        const item = this.game.items.find(it => it.id === i.id);
-        return {item: item, qty: i.qty}
+      return this.location.items.map((i) => {
+        const item = this.game.items.find((it) => it.id === i.id);
+        return { item: item, qty: i.qty };
       });
-    }
+    },
+    playerInventory() {
+      return this.inventory?.getAll() ?? [];
+    },
   },
   mounted() {
     this.restart();
@@ -158,21 +159,17 @@ export default {
     restart() {
       // reads game data and sets local fields
       this.game = structuredClone(world.game);
-      this.inventory = this.loadStartingInventory();
+      this.inventory = this.loadPlayerInventory();
       this.shorthand = this.game.shorthand;
       this.aliases = this.game.aliases;
       this.loadLocation(this.game.startingLocation);
     },
-    loadStartingInventory() {
-      // starting inventory structure: [{id: num, qty: num}, ...]
-      let inv = [];
-      for (let invObj of this.game.startingInventory) {
-        const item = this.game.items.find((i) => i.id === invObj.id);
-        if (item !== undefined) {
-          inv.push({ item: item, qty: invObj.qty });
-        }
-      }
-      return inv;
+    loadPlayerInventory() {
+      const invObj = this.game.startingInventory.map((o) => {
+        const item = this.game.items.find((i) => i.id === o.id);
+        return { item: item, qty: o.qty };
+      });
+      return new Inventory(invObj);
     },
     loadLocation(locId) {
       // Loads stateful location data into local properties
@@ -221,7 +218,7 @@ export default {
     findItemInInput(text) {
       const lowerText = text.toLowerCase();
       const locationitemObjs = this.locationItems.map((i) => i.item);
-      const items = this.inventoryItems.concat(locationitemObjs);
+      const items = this.inventory.items().concat(locationitemObjs);
       for (const item of items) {
         for (const alias of item.aliases) {
           if (lowerText.includes(alias)) {
@@ -369,22 +366,14 @@ export default {
       if (item === undefined) {
         this.texts.push("That item isn't here.");
       } else {
-        this.addItemToInventory(item);
+        this.inventory.add(item);
         this.removeItemFromLocation(item);
         this.texts.push(`${item.name} has been added to your inventory.`);
       }
     },
-    addItemToInventory(item, qty = 1) {
-      const entryInd = this.inventory.findIndex((e) => e.item.id == item.id);
-      if (entryInd !== -1) {
-        this.inventory[entryInd].qty++;
-      } else {
-        this.inventory.push({ item: item, qty: qty });
-      }
-    },
     findItemInLocation(itemName) {
       // get list of item objects given a list of item IDs
-      let locItems = this.locationItems.map(i => i.item);
+      let locItems = this.locationItems.map((i) => i.item);
       // look for a match of any alias, handle success/failure appropriately
       return locItems.find((i) => i.aliases.includes(itemName));
     },
@@ -396,7 +385,9 @@ export default {
       }
       const locQty = this.location.items[ind].qty;
       if (locQty < qty) {
-        throw new Error ("Removal quantity is greater than item quantity at location");
+        throw new Error(
+          "Removal quantity is greater than item quantity at location"
+        );
       } else if (locQty === qty) {
         this.location.items.splice(ind, 1);
       } else {
@@ -405,43 +396,26 @@ export default {
     },
     addItemToLocation(item, qty = 1) {
       const ind = this.location.items.findIndex((i) => i.id === item.id);
-      
+
       if (ind === -1) {
-        this.location.items.push({id: item.id, qty: qty});
+        this.location.items.push({ id: item.id, qty: qty });
       } else {
         this.location.items[ind].qty += qty;
       }
     },
-    findItemInInventory(itemName) {
-      return this.inventory.find((e) =>
-        e.item.aliases.includes(itemName.toLowerCase())
-      )?.item;
-    },
     handleDropItem(itemName) {
-      const item = this.findItemInInventory(itemName);
+      const item = this.inventory.findItemByName(itemName);
       if (item === undefined) {
         this.texts.push("That item is not in your inventory.");
       } else {
         this.addItemToLocation(item);
-        this.removeItemFromInventory(item);
+        this.inventory.remove(item);
         this.texts.push(`${item.name} has been removed from your inventory.`);
         this.resolveCondition(item.id, null, this.location.id);
       }
     },
-    removeItemFromInventory(item, qty = 1) {
-      const entryInd = this.inventory.findIndex((e) => e.item.id == item.id);
-      if (entryInd === -1) {
-        throw new Error("Item was not found in inventory.");
-      } else if (this.inventory[entryInd].qty < qty) {
-        throw new Error("Insufficient qty of that item");
-      } else if (this.inventory[entryInd].qty === qty) {
-        this.inventory.splice(entryInd, 1);
-      } else {
-        this.inventory[entryInd].qty -= qty;
-      }
-    },
     handlePutItem(text) {
-      const item = this.findItemInInventory(text.split(" ")[0]);
+      const item = this.inventory.findItemByName(text.split(" ")[0]);
       const locContainers = this.game.containers.filter((c) =>
         this.containers.includes(c.id)
       );
@@ -459,7 +433,7 @@ export default {
         for (let slot of container.slots) {
           if (slot.item === null && slot.acceptedItems.includes(item.id)) {
             slot.item = item.id;
-            this.removeItemFromInventory(item);
+            this.inventory.remove(item);
             this.texts.push(
               `You've placed ${item.name} in the ${container.name}.`
             );
@@ -616,7 +590,7 @@ export default {
       }
       // check for deleteItemOnTrigger
       if (condition.deleteItemOnTrigger === true) {
-        this.removeItemFromLocation({id: itemId});
+        this.removeItemFromLocation({ id: itemId });
       }
       // delete condition
       const conditionInd = this.game.conditions.findIndex(

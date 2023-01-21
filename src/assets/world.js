@@ -8,12 +8,6 @@ export default {
                 description: "You're in front of a red brick school that has bees painted all over the interior. The vice principal is walking toward you.",
                 isSafe: true,
                 items: [],
-                containers: [
-                    {
-                        item: null,
-                        acceptedItems: []
-                    }
-                ],
                 enemies: ["Vice Principal"],
                 shop: null,
                 gameOver: false,
