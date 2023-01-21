@@ -1,0 +1,5 @@
+known issues:
+
+- when multiple objects are dropped into a location, their text descriptions are duplicated.
+- containers aren't working and put command is throwing errors.
+- hitting enter with empty text is throwing an error.

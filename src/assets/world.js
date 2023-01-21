@@ -88,7 +88,7 @@ export default {
                 isSafe: true,
                 items: [],
                 enemies: [],
-                shop: "Cashier",
+                npcs: [1],
                 gameOver: false,
                 exits: [
                     { direction: "south", locationId: 5, condition: null, visible: true },
@@ -358,7 +358,43 @@ export default {
             drop: ["drop", "throw", "dump", "remove", "eject", "yeet"],
             examine: ["examine", "x", "inspect"],
             // syntax: put {item} {container}
-            put: ["put", "place", "insert", "set"]
-        }
+            put: ["put", "place", "insert", "set"],
+            talk: ["talk", "speak", "chat", "converse"],
+        },
+        currencyTerms: {
+            generic: "money",
+            singular: "dollar",
+            plural: "dollars"
+        },
+        nonPlayerCharacters: [
+            {
+                id: 1,
+                name: "cashier",
+                aliases: ["cashier"],
+                type: "shop",
+                items: [{ id: 1, qty: 5 }, {id: 2, qty: 5}, {id: 6, qty: 3}],
+                currency: 30,
+                greetings: [
+                    "Uh, sure, what do you want?",
+                    "Don't you need supervision? Whatever, business is business.",
+                    "I can tell you aren't 21, so don't even try.",
+                    "Wow, school's out already? If only the end of my shift came so quickly.",
+                ],
+                purchaseLines: [
+                    "There you go.",
+                    "Thanks for your business, I guess.",
+                ],
+                sellLines: [
+                    "I know just what to do with that.",
+                    "Hmm, looks like it's in good condition.",
+                    "You've got yourself a deal.",
+                ],
+                farewells: [
+                    "Until next time.",
+                    "Try to stay out of trouble. Or don't. I don't really care.",
+                    "Beat it, kid.",
+                ],
+            }
+        ]
     }
 }

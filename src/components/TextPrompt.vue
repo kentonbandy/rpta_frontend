@@ -4,7 +4,13 @@
       <div class="inventory"></div>
       <div
         id="output"
-        class="d-flex flex-column justify-content-end align-items-start bg-black"
+        class="
+          d-flex
+          flex-column
+          justify-content-end
+          align-items-start
+          bg-black
+        "
       >
         <div v-for="text in texts" :key="text.id" class="screenText">
           {{ text }}
@@ -15,22 +21,37 @@
             class="form-control bg-black"
             id="textInput"
             v-model="input"
-            @keydown.enter="addText(input)"
+            @keydown.enter="addText(input, inputContext)"
             @keydown.up="historyBack()"
             @keydown.down="historyForward()"
           />
         </div>
       </div>
       <div
-        class="d-flex flex-column justify-content-start align-items-start bg-black inventory"
+        class="
+          d-flex
+          flex-column
+          justify-content-start
+          align-items-start
+          bg-black
+          inventory
+        "
       >
+        <div id="inventory-title">
+          Player Inventory
+        </div>
+        <div class="inventoryText">
+          <div>Item</div>
+          <div>Qty</div>
+        </div>
         <div
           v-for="item in inventory"
           :key="item.id"
           id="inventorybox"
-          class="screenText"
+          class="inventoryText"
         >
-          {{ item.name }}
+          <div>{{ item.item.name }}</div>
+          <div>{{ item.qty }}</div>
         </div>
       </div>
     </div>
@@ -49,11 +70,13 @@ export default {
       location: null, // comprehensive location data. Most other local properties are references to children of this object.
       containers: [],
       enemies: [],
-      shops: [],
       exits: [], // all exits for a location. Only those with visible=true are available.
       texts: [], // game text. Display lines of text by pushing to this array.
       inventory: [], // player inventory. Appears in its own window.
+      playerCurrency: 0,
       input: "", // user input.
+      inputContext: null,
+      activeNpc: null,
       history: [], // this and historyInd are used for saving user inputs and can be accessed with up/down arrows.
       historyInd: null,
       shorthand: {}, // a dictionary of accepted keyword shortenings.
@@ -100,6 +123,29 @@ export default {
     items() {
       return this.getItemsListFromIds(this.location.items);
     },
+    npcs() {
+      return this.game.nonPlayerCharacters.filter((c) =>
+        this.location.npcs.includes(c.id)
+      );
+    },
+    shopItems() {
+      if (this.context !== "shop" || this.activeNpc?.type !== "shop") {
+        return [];
+      }
+
+      const itemList = [];
+      for (const i of this.activeNpc.items) {
+        itemList.push({
+          item: this.game.items.find((gi) => gi.id === i.id),
+          qty: i.qty
+        });
+      }
+
+      return itemList;
+    },
+    inventoryItems() {
+      return this.inventory.map(i => i.item);
+    }
   },
   mounted() {
     this.restart();
@@ -119,7 +165,7 @@ export default {
       for (let invObj of this.game.startingInventory) {
         const item = this.game.items.find((i) => i.id === invObj.id);
         if (item !== undefined) {
-          [...Array(invObj.qty).keys()].forEach(() => inv.push(item));
+          inv.push({item: item, qty: invObj.qty});
         }
       }
       return inv;
@@ -130,7 +176,6 @@ export default {
       this.location = location;
       this.containers = location.containers;
       this.enemies = location.enemies;
-      this.shops = location.shops;
       this.exits = this.visibleExits;
       this.getAllDirections();
       this.gameOver = this.location.gameOver;
@@ -175,7 +220,7 @@ export default {
     },
     findItemInInput(text) {
       const lowerText = text.toLowerCase();
-      const items = this.inventory.concat(this.items);
+      const items = this.inventoryItems.concat(this.items);
       for (const item of items) {
         for (const alias of item.aliases) {
           if (lowerText.includes(alias)) {
@@ -185,10 +230,10 @@ export default {
       }
       return null;
     },
-    parseInput(text) {
+    parseInput(text, context = null) {
       // lol this is gonna be a huge function
       const inputArr = this.textToArray(text);
-      let first = inputArr[0];
+      let first = inputArr[0].toLowerCase();
       const item = this.findItemInInput(text);
 
       // remove unnecessary verb
@@ -198,6 +243,12 @@ export default {
           this.texts.push("You need to specify a destination.");
           return;
         } else first = inputArr[0].toLowerCase();
+      }
+
+      // check for context
+      if (context !== null) {
+        this.parseContext(context, inputArr, first, item);
+        return;
       }
 
       // case: travel
@@ -219,7 +270,7 @@ export default {
           this.texts.push(
             `Please specify what you'd like to ${this.aliases.get[0]}.`
           );
-        } else this.handleGetItem(inputArr.slice(1).join(" "));
+        } else this.handleGetItemFromLocation(inputArr.slice(1).join(" "));
       }
 
       // case: drop item
@@ -253,8 +304,49 @@ export default {
         } else this.handlePutItem(inputArr.slice(1).join(" "));
       }
 
+      // case: talk to npc
+      else if (this.aliases.talk.includes(first)) {
+        if (inputArr.length < 2) {
+          this.texts.push(
+            `Please specify who you'd like to ${this.aliases.talk[0]} to.`
+          );
+        } else this.handleTalk(inputArr.slice(1));
+      }
+
       // not recognized
       else {
+        this.texts.push("That is not a recognized command.");
+      }
+    },
+    parseContext(context, inputArr, first, item) {
+      // run parse function based on context (shop, battle, etc).
+      if (context === "shop") this.parseShopInput(inputArr, first, item);
+    },
+    parseShopInput(first, item) {
+      const shopBuyAliases = ["buy", "purchase", "get"];
+      const shopSellAliases = ["sell"];
+      const shopLeaveAliases = ["leave", "done", "quit"];
+
+      if (shopLeaveAliases.includes(first)) {
+        return;
+      } else if (!item) {
+        this.texts.push("Please specify an item.");
+      }
+      item = this.shopItems.find(i => i.item.id === item.id);
+      if (item === undefined) {
+        this.texts.push("That item isn't here.");
+      } else if (shopBuyAliases.includes(first)) {
+        if (this.playerCurrency < item.item.price) {
+          this.texts.push(`You don't have enough ${this.game.currencyTerms.generic}.`);
+          return;
+        }
+        this.playerCurrency -= item.item.price;
+        this.activeNpc.currency += item.item.price;
+        item.qty -= 1;
+        // add item to inventory
+      } else if (shopSellAliases.includes(first)) {
+        // do more stuff
+      } else {
         this.texts.push("That is not a recognized command.");
       }
     },
@@ -269,15 +361,23 @@ export default {
         this.texts.push("You can't go that way.");
       }
     },
-    handleGetItem(itemName) {
+    handleGetItemFromLocation(itemName) {
       const item = this.findItemInLocation(itemName);
       if (item === undefined) {
         this.texts.push("That item isn't here.");
       } else {
-        this.inventory.push(item);
+        this.addItemToInventory(item);
         const ind = this.location.items.findIndex((i) => i.id === item.id);
         this.location.items.splice(ind, 1);
         this.texts.push(`${item.name} has been added to your inventory.`);
+      }
+    },
+    addItemToInventory(item, qty = 1) {
+      const entryInd = this.inventory.findIndex(e => e.item.id == item.id);
+      if (entryInd !== -1) {
+        this.inventory[entryInd].qty++;
+      } else {
+        this.inventory.push({item: item, qty: qty});
       }
     },
     findItemInLocation(itemName) {
@@ -289,9 +389,9 @@ export default {
       return locItems.find((i) => i.aliases.includes(itemName));
     },
     findItemInInventory(itemName) {
-      return this.inventory.find((i) =>
-        i.aliases.includes(itemName.toLowerCase())
-      );
+      return this.inventory.find((e) =>
+        e.item.aliases.includes(itemName.toLowerCase())
+      )?.item;
     },
     handleDropItem(itemName) {
       const item = this.findItemInInventory(itemName);
@@ -299,10 +399,21 @@ export default {
         this.texts.push("That item is not in your inventory.");
       } else {
         this.location.items.push(item.id);
-        let ind = this.inventory.findIndex((i) => i.id === item.id);
-        this.inventory.splice(ind, 1);
+        this.removeItemFromInventory(item);
         this.texts.push(`${item.name} has been removed from your inventory.`);
         this.resolveCondition(item.id, null, this.location.id);
+      }
+    },
+    removeItemFromInventory(item, qty = 1) {
+      const entryInd = this.inventory.findIndex(e => e.item.id == item.id);
+      if (entryInd === -1) {
+        throw new Error("Item was not found in inventory.");
+      } else if (this.inventory[entryInd].qty < qty) {
+        throw new Error("Insufficient qty of that item");
+      } else if (this.inventory[entryInd].qty === qty) {
+        this.inventory.splice(entryInd, 1);
+      } else {
+        this.inventory[entryInd].qty -= qty;
       }
     },
     handlePutItem(text) {
@@ -324,7 +435,7 @@ export default {
         for (let slot of container.slots) {
           if (slot.item === null && slot.acceptedItems.includes(item.id)) {
             slot.item = item.id;
-            this.inventory.remove(item);
+            this.removeItemFromInventory(item);
             this.texts.push(
               `You've placed ${item.name} in the ${container.name}.`
             );
@@ -333,8 +444,77 @@ export default {
         }
       }
     },
+    handleTalk(inputArr) {
+      // match word in inputArr with npc
+      let npc = this.findNpc(inputArr);
+      if (!npc) {
+        this.texts.push("That person isn't here.");
+        return;
+      }
+      // initiate conversation with npc
+      if (npc.type === "shop") {
+        // need to eventually have constants or enum for npc types
+        this.shop(npc);
+      }
+      // ...more npc types
+    },
+    shop(npc) {
+      // initiate shop context
+      this.texts.push(this.getRandomElement(npc.greetings));
+      this.context = "shop";
+      this.activeNpc = npc;
+      this.displayShopItems();
+    },
+    findNpc(inputArr) {
+      for (let npc of this.npcs) {
+        for (let alias of npc.aliases) {
+          if (inputArr.includes(alias)) {
+            return npc;
+          }
+        }
+      }
+      return null;
+    },
+    displayShopItems() {
+      const topLine = this.addShopItemLine("Item", "Price", "Qty");
+      this.texts.push(topLine);
+      for (const itemObj of this.shopItems) {
+        const shopLine = this.addShopItemLine(
+          itemObj.item.name,
+          itemObj.item.price,
+          itemObj.qty
+        );
+        this.texts.push(shopLine);
+      }
+    },
+    addShopItemLine(itemName, price, qty) {
+      // hardcoded for now, but these parameters should be customizeable via some kind of configuration
+      const nameWidth = 16;
+      const priceWidth = 8;
+
+      // add name with width
+      let shopLine = this.concatTextWithWidth("", itemName, nameWidth);
+      // add price with width
+      shopLine = this.concatTextWithWidth(shopLine, price, priceWidth);
+      // add qty
+      shopLine += `${qty}`;
+
+      return shopLine;
+    },
+    concatTextWithWidth(leftString, toAdd, width) {
+      let output = "" + leftString;
+      const len = `${toAdd}`.length;
+      console.log(width, toAdd, len);
+      if (len > width - 2) {
+        output += `${toAdd.slice(0, width - 2)}..`;
+      } else {
+        output += `${toAdd}${".".repeat(width - len)}`;
+      }
+
+      return output;
+    },
     getAllDirections() {
-      // build set (so that we can ignore duplicates) of all direction keywords in the game
+      // build set of all direction keywords in the game
       let allDir = new Set();
       for (let loc of this.game.locations) {
         for (let exit of loc.exits) {
@@ -348,7 +528,7 @@ export default {
           allDir.add(value);
         }
       }
-      // return set as an array
+
       this.allDirections = Array.from(allDir);
     },
     historyBack() {
@@ -421,6 +601,12 @@ export default {
       );
       this.game.conditions.splice(conditionInd, 1);
     },
+    getRandomElement(arr) {
+      return arr[this.getRandomInt(0, arr.length)];
+    },
+    getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min)) + min;
+    },
   },
 };
 </script>
@@ -460,7 +646,21 @@ export default {
   margin-top: 8px;
 }
 
+.inventoryText {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 6px;
+}
+
 .bg-black {
   background-color: black;
+}
+
+#inventory-title {
+  width: 100%;
+  text-align: center;
+  color: rgb(255, 255, 162);
+  padding: 6px;
 }
 </style>
