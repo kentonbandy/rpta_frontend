@@ -11,7 +11,6 @@ export default {
                 isSafe: true,
                 items: [],
                 enemies: ["Vice Principal"],
-                shop: null,
                 exits: [
                     { direction: "west", locationId: 2, condition: null, visible: true },
                     { direction: "north", locationId: 3, condition: null, visible: true },
@@ -25,7 +24,6 @@ export default {
                 isSafe: false,
                 items: [],
                 enemies: ["Punk Kid", "Nerd", "Jock"],
-                shop: null,
                 exits: [
                     { direction: "north", locationId: 7, condition: null, visible: true },
                     { direction: "west", locationId: 8, condition: null, visible: true },
@@ -39,7 +37,6 @@ export default {
                 isSafe: true,
                 items: [],
                 enemies: ["Tank"],
-                shop: null,
                 exits: [
                     { direction: "south", locationId: 1, condition: null, visible: true },
                     { direction: "east", locationId: 6, condition: null, visible: true },
@@ -54,7 +51,6 @@ export default {
                 isSafe: true,
                 items: [{ id: 3, qty: 1 }],
                 enemies: [],
-                shop: null,
                 exits: [
                     { direction: "outside", locationId: 3, condition: null, visible: true },
                 ]
@@ -66,7 +62,6 @@ export default {
                 isSafe: false,
                 items: [{ id: 5, qty: 1 }],
                 enemies: ["Punk Kid", "Nerd", "Jock"],
-                shop: null,
                 exits: [
                     { direction: "west", locationId: 1, condition: null, visible: true },
                     { direction: "north", locationId: 6, condition: null, visible: true },
@@ -92,7 +87,6 @@ export default {
                 isSafe: true,
                 items: [],
                 enemies: [],
-                shop: null,
                 exits: [
                     { direction: "east", locationId: 3, condition: null, visible: true },
                     { direction: "south", locationId: 2, condition: null, visible: true },
@@ -106,7 +100,6 @@ export default {
                 isSafe: true,
                 items: [{ id: 9, qty: 1 }],
                 enemies: [],
-                shop: null,
                 exits: [
                     { direction: "west", locationId: 9, condition: null, visible: true },
                     { direction: "east", locationId: 2, condition: null, visible: true },
@@ -119,7 +112,6 @@ export default {
                 isSafe: true,
                 items: [],
                 enemies: [],
-                shop: null,
                 exits: [
                     { direction: "inside", locationId: 10, condition: null, visible: true },
                     { direction: "east", locationId: 8, condition: null, visible: true },
@@ -132,7 +124,6 @@ export default {
                 isSafe: true,
                 items: [{ id: 1, qty: 1 }, { id: 2, qty: 1 }],
                 enemies: [],
-                shop: null,
                 exits: [
                     { direction: "outside", locationId: 9, condition: null, visible: true },
                     { direction: "join", locationId: 11, condition: null, visible: true }
@@ -145,7 +136,6 @@ export default {
                 isSafe: true,
                 items: [{ id: 1, qty: 1 }, { id: 2, qty: 1 }],
                 enemies: [],
-                shop: null,
                 gameOver: true,
                 exits: []
             },
@@ -156,11 +146,24 @@ export default {
                 isSafe: true,
                 items: [{ id: 4, qty: 1 }],
                 enemies: [],
-                shop: null,
                 exits: [
                     { direction: "outside", locationId: 7, condition: null, visible: true }
                 ]
-            }
+            },
+            {
+                id: 13,
+                name: "Zach's House",
+                description: "You arrive at a hulking structure in its own forest on an unassuming street corner. A tiny white dog is having a blast chewing on a stick. Farr's house is to the west, WHS is to the south, and a corner store is to the east.",
+                isSafe: true,
+                items: [],
+                enemies: [],
+                exits: [
+                    { direction: "south", locationId: 1, condition: null, visible: true },
+                    { direction: "east", locationId: 6, condition: null, visible: true },
+                    { direction: "west", locationId: 7, condition: null, visible: true },
+                    { direction: "inside", locationId: 4, condition: null, visible: true },
+                ]
+            },
         ],
         items: [
             // add use aliases to usable items, for example: edible items would have 'eat', drinks would have 'drink', etc
@@ -326,6 +329,7 @@ export default {
                 item: 5,
                 container: null,
                 location: 3,
+                newLocation: 13,
                 text: "Just as Tank the dog is about to leap for your jugular, you take the stick and throw it around the side of the house. Tank immediately chases after it, unwittingly sparing your life. It looks like you can now safely make it inside.",
                 deleteItemOnTrigger: true
             }

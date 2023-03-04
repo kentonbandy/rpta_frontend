@@ -543,6 +543,13 @@ export default {
             if (condition.deleteItemOnTrigger === true) {
                 this.location.inventory.remove(itemId);
             }
+
+            // route new location if necessary
+            if (condition.newLocation !== null) {
+                this.locations[condition.newLocation].id = condition.location;
+                this.locations[condition.location] = this.locations[condition.newLocation];
+            }
+
             // delete condition
             const conditionInd = this.game.conditions.findIndex((c) => c.id === condition.id);
             this.game.conditions.splice(conditionInd, 1);
