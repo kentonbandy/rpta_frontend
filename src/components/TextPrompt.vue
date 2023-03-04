@@ -53,6 +53,7 @@ export default {
             location: null, // comprehensive location data.
             texts: [], // game text. Display lines of text by pushing to this array.
             inventory: null, // player inventory. Appears in its own window.
+            equipment: { armor: null, weapon: null },
             playerCurrency: 0,
             input: '', // user input.
             context: null,
@@ -62,7 +63,8 @@ export default {
             shorthand: {}, // a dictionary of accepted keyword shortenings.
             aliases: {}, // a dictionary of accepted aliases for keywords (see world file)
             allDirections: [], // a lits of all direction keywords used in the game, used to detect whether the user is trying to travel.
-            npcLineTypes: { greeting: 'greetings', purchase: 'purchaseLines', sell: 'sellLines', invalid: 'invalidItemLines', farewell: 'farewells' },
+            npcLineType: { greeting: 'greetings', purchase: 'purchaseLines', sell: 'sellLines', invalid: 'invalidItemLines', farewell: 'farewells' },
+            itemType: { food: 'food', potion: 'potion', armor: 'armor', weapon: 'weapon', key: 'key' },
             ignored: [
                 // Words that are automatically removed from user input.
                 'on',
@@ -163,6 +165,12 @@ export default {
             if (this.activeNpc) {
                 items = items.concat(this.activeNpc.items.items());
             }
+            if (this.equipment.armor !== null) {
+                items = items.concat(this.equipment.armor);
+            }
+            if (this.equipment.weapon !== null) {
+                items = items.concat(this.equipment.weapon);
+            }
             for (const item of items) {
                 for (const alias of item.aliases) {
                     if (lowerText.includes(alias)) {
@@ -226,8 +234,24 @@ export default {
                             : `Please specify what you'd like to ${this.aliases.examine[0]}.`
                     );
                 } else {
+                    this.addText(`${this.aliases.item}: ${item.name}`);
+                    this.addText(`${this.aliases.item} type: ${item.type}`);
                     this.addText(item.description);
                 }
+            }
+
+            // case: equip item
+            else if (this.aliases.equip.includes(first)) {
+                if (inputArr.length < 2) {
+                    this.addText(`Please specify what you'd like to ${this.aliases.equip[0]}.`);
+                } else this.handleEquipItem(item);
+            }
+
+            // case: unequip item
+            else if (this.aliases.unequip.includes(first)) {
+                if (inputArr.length < 2) {
+                    this.addText(`Please specify what you'd like to ${this.aliases.unequip[0]}.`);
+                } else this.handleUnequipItem(item);
             }
 
             // case: put item in container
@@ -260,7 +284,7 @@ export default {
 
             if (shopLeaveAliases.includes(first)) {
                 this.context = null;
-                this.getRandomNpcLine(this.npcLineTypes.farewell);
+                this.getRandomNpcLine(this.npcLineType.farewell);
                 this.addTextWithDelay(this.location.getLocationPrompt());
                 return;
             }
@@ -271,7 +295,7 @@ export default {
                 this.shopPurchase(item);
             } else if (shopSellAliases.includes(first)) {
                 if (item.price === null) {
-                    this.getRandomNpcLine(this.npcLineTypes.invalid);
+                    this.getRandomNpcLine(this.npcLineType.invalid);
                 } else {
                     this.shopSell(item);
                 }
@@ -300,10 +324,35 @@ export default {
             this.playerCurrency += item.price;
             this.activeNpc.items.add(item);
             this.inventory.remove(item);
-            this.getRandomNpcLine(this.npcLineTypes.sell);
+            this.getRandomNpcLine(this.npcLineType.sell);
         },
         getRandomNpcLine(type) {
             this.addText(`${this.activeNpc.name}: ${this.getRandomElement(this.activeNpc[type])}`);
+        },
+        handleEquipItem(item) {
+            if (!this.inventory.hasItem(item)) {
+                this.addText(`That item isn't in your ${this.aliases.inventory}.`);
+            } else if (![this.itemType.armor, this.itemType.weapon].includes(item.type)) {
+                this.addText(`You can only ${this.aliases.equip} ${this.aliases.armor} and ${this.aliases.weapon} type items.`);
+            } else {
+                if (this.equipment[item.type] !== null) {
+                    this.inventory.add(this.equipment[item.type]);
+                }
+                this.equipment[item.type] = item;
+                this.inventory.remove(item);
+                this.addText(`${item.name} has been ${this.aliases.equipped}.`);               
+            }
+        },
+        handleUnequipItem(item) {
+            if (this.equipment[item.type] === null) {
+                this.addText(`There is nothing to ${this.aliases.unequip}.`);
+            } else if (this.equipment[item.type].id !== item.id) {
+                this.addText(`${item.name} is not ${this.aliases.equipped}.`);
+            } else {
+                this.inventory.add(item);
+                this.equipment[item.type] = null;
+                this.addText(`${item.name} has been ${this.aliases.unequipped}`);
+            }
         },
         handleDirection(dir) {
             const exit = this.location
@@ -372,7 +421,7 @@ export default {
             // initiate shop context
             this.context = 'shop';
             this.activeNpc = npc;
-            this.getRandomNpcLine(this.npcLineTypes.greeting);
+            this.getRandomNpcLine(this.npcLineType.greeting);
             this.displayShopItems();
         },
         findNpc(inputArr) {

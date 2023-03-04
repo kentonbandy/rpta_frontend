@@ -169,7 +169,7 @@ export default {
                 name: "Snack",
                 description: "Your favorite pre-packaged salty snack. Heals HP by 40% up to max.",
                 locationText: "You see a snack bar. Your stomach grumbles slightly.",
-                type: "Potion",
+                type: "food",
                 price: 10,
                 effect: 5,
                 // convention: include name, all aliases lowercase
@@ -180,7 +180,7 @@ export default {
                 name: "Soda",
                 description: "A bottle of your favorite carbonated sugar drink. Replenishes MP by 40% up to max.",
                 locationText: "Woah, is that a can of Surge?",
-                type: "Potion",
+                type: "potion",
                 price: 10,
                 effect: 5,
                 aliases: ["soda", "pop", "surge", "can"]
@@ -190,7 +190,7 @@ export default {
                 name: "Police Helmet",
                 description: "A flimsy toy police helmet. It offers a surprising amount of protection.",
                 locationText: "Is that... a police helmet??",
-                type: "Armor",
+                type: "armor",
                 price: 15,
                 effect: 10,
                 aliases: ["police helmet", "helmet"]
@@ -200,7 +200,7 @@ export default {
                 name: "Mellophone",
                 description: "It's like a french horn for marching band, also played by Chuck Mangione. These are its total use cases outside of combat.",
                 locationText: "You spot Farr's mellophone. With a bell that big, a blast from that thing would probably do some damage.",
-                type: "Weapon",
+                type: "weapon",
                 price: 15,
                 attacks: [
                     { name: "Blast", effect: 20 },
@@ -250,7 +250,7 @@ export default {
                 name: "Brownie",
                 description: "This appears to be a normal brownie, it smells slightly... dank.",
                 locationText: "A brownie sits on a small plate extended toward you.",
-                type: "potion",
+                type: "food",
                 price: null,
                 aliases: ["brownie", "brownies", "pot brownie"],
             },
@@ -259,7 +259,7 @@ export default {
                 name: "Ribs",
                 description: "Juicy, well-seasoned, melt-in-your-mouth ribs.",
                 locationText: "Some tasty looking ribs just came out of the oven.",
-                type: "potion",
+                type: "food",
                 price: null,
                 aliases: ["ribs", "rib"],
             }
@@ -345,6 +345,17 @@ export default {
             // syntax: put {item} {container}
             put: ["put", "place", "insert", "set"],
             talk: ["talk", "speak", "chat", "converse"],
+            armor: "armor",
+            weapon: "weapon",
+            equip: ["equip"],
+            equipped: ["equipped"],
+            unequip: ["unequip"],
+            unequipped: ["unequipped"],
+            useItem: {
+                food: ["use", "consume", "eat"],
+                potion: ["use", "consume", "drink"],
+                key: ["use"],
+            },
         },
         currencyTerms: {
             generic: "money",
