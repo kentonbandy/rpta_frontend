@@ -1,6 +1,8 @@
 export default {
     game: {
         startingLocation: 1,
+        startingInventory: [{ id: 1, qty: 1 }],
+        startingCurrency: 10,
         locations: [
             {
                 id: 1,
@@ -10,7 +12,6 @@ export default {
                 items: [],
                 enemies: ["Vice Principal"],
                 shop: null,
-                gameOver: false,
                 exits: [
                     { direction: "west", locationId: 2, condition: null, visible: true },
                     { direction: "north", locationId: 3, condition: null, visible: true },
@@ -25,7 +26,6 @@ export default {
                 items: [],
                 enemies: ["Punk Kid", "Nerd", "Jock"],
                 shop: null,
-                gameOver: false,
                 exits: [
                     { direction: "north", locationId: 7, condition: null, visible: true },
                     { direction: "west", locationId: 8, condition: null, visible: true },
@@ -40,7 +40,6 @@ export default {
                 items: [],
                 enemies: ["Tank"],
                 shop: null,
-                gameOver: false,
                 exits: [
                     { direction: "south", locationId: 1, condition: null, visible: true },
                     { direction: "east", locationId: 6, condition: null, visible: true },
@@ -53,10 +52,9 @@ export default {
                 name: "Inside Zach's House",
                 description: "You're in a spacious house that you recognize as zach's. Tank's toys adorn much of the interior.",
                 isSafe: true,
-                items: [{id: 3, qty: 1}],
+                items: [{ id: 3, qty: 1 }],
                 enemies: [],
                 shop: null,
-                gameOver: false,
                 exits: [
                     { direction: "outside", locationId: 3, condition: null, visible: true },
                 ]
@@ -66,10 +64,9 @@ export default {
                 name: "Park",
                 description: "A bunch of kids are playing frisbee, swinging, making out, fighting, you know, what kids do. You take shelter from the sun under a Maple tree. WHS is to the west, a corner store is to the north.",
                 isSafe: false,
-                items: [{id: 5, qty: 1}],
+                items: [{ id: 5, qty: 1 }],
                 enemies: ["Punk Kid", "Nerd", "Jock"],
                 shop: null,
-                gameOver: false,
                 exits: [
                     { direction: "west", locationId: 1, condition: null, visible: true },
                     { direction: "north", locationId: 6, condition: null, visible: true },
@@ -83,7 +80,6 @@ export default {
                 items: [],
                 enemies: [],
                 npcs: [1],
-                gameOver: false,
                 exits: [
                     { direction: "south", locationId: 5, condition: null, visible: true },
                     { direction: "west", locationId: 3, condition: null, visible: true },
@@ -97,7 +93,6 @@ export default {
                 items: [],
                 enemies: [],
                 shop: null,
-                gameOver: false,
                 exits: [
                     { direction: "east", locationId: 3, condition: null, visible: true },
                     { direction: "south", locationId: 2, condition: null, visible: true },
@@ -109,10 +104,9 @@ export default {
                 name: "Travis's House",
                 description: "You're at the door of a house on the corner of an attractive development. Travis's mom opens the door and says 'I have no idea where Travis is but I just made brownies! Want one?'. You see another house to the West.",
                 isSafe: true,
-                items: [{id: 9, qty: 1}],
+                items: [{ id: 9, qty: 1 }],
                 enemies: [],
                 shop: null,
-                gameOver: false,
                 exits: [
                     { direction: "west", locationId: 9, condition: null, visible: true },
                     { direction: "east", locationId: 2, condition: null, visible: true },
@@ -126,7 +120,6 @@ export default {
                 items: [],
                 enemies: [],
                 shop: null,
-                gameOver: false,
                 exits: [
                     { direction: "inside", locationId: 10, condition: null, visible: true },
                     { direction: "east", locationId: 8, condition: null, visible: true },
@@ -137,10 +130,9 @@ export default {
                 name: "Inside Wood's House",
                 description: "As expected, you see Wood and Zach at the dining room table, laptops out, playing World of Gamecraft. Fresh ribs have just come out of the oven and are resting on the counter. Wood and Zach beckon you to join them.",
                 isSafe: true,
-                items: [{id: 1, qty: 1}, {id: 2, qty: 1}],
+                items: [{ id: 1, qty: 1 }, { id: 2, qty: 1 }],
                 enemies: [],
                 shop: null,
-                gameOver: false,
                 exits: [
                     { direction: "outside", locationId: 9, condition: null, visible: true },
                     { direction: "join", locationId: 11, condition: null, visible: true }
@@ -151,7 +143,7 @@ export default {
                 name: "World of Gamecraft",
                 description: "You settle in with a spare laptop and log on to World of Gamecraft. Your grasp on the passage of time loosens and in the blink of an eye, it's 3am. Looks like game over, for now.",
                 isSafe: true,
-                items: [{id: 1, qty: 1}, {id: 2, qty: 1}],
+                items: [{ id: 1, qty: 1 }, { id: 2, qty: 1 }],
                 enemies: [],
                 shop: null,
                 gameOver: true,
@@ -162,17 +154,16 @@ export default {
                 name: "Inside Farr's House",
                 description: "You're in Farr's house. The smell of spaghetti is wafting in from the kitchen. The place is bustling - how many sisters does Farr have again?",
                 isSafe: true,
-                items: [{id: 4, qty: 1}],
+                items: [{ id: 4, qty: 1 }],
                 enemies: [],
                 shop: null,
-                gameOver: false,
                 exits: [
                     { direction: "outside", locationId: 7, condition: null, visible: true }
                 ]
             }
         ],
-        startingInventory: [{ id: 1, qty: 1 }],
         items: [
+            // add use aliases to usable items, for example: edible items would have 'eat', drinks would have 'drink', etc
             {
                 id: 1,
                 name: "Snack",
@@ -360,13 +351,14 @@ export default {
             singular: "dollar",
             plural: "dollars"
         },
-        nonPlayerCharacters: [
+        enemies: [],
+        npcs: [
             {
                 id: 1,
-                name: "cashier",
+                name: "Cashier",
                 aliases: ["cashier"],
                 type: "shop",
-                items: [{ id: 1, qty: 5 }, {id: 2, qty: 5}, {id: 6, qty: 3}],
+                items: [{ id: 1, qty: 5 }, { id: 2, qty: 5 }, { id: 6, qty: 3 }],
                 currency: 30,
                 greetings: [
                     "Uh, sure, what do you want?",
@@ -382,6 +374,11 @@ export default {
                     "I know just what to do with that.",
                     "Hmm, looks like it's in good condition.",
                     "You've got yourself a deal.",
+                ],
+                invalidItemLines: [
+                    "I won't buy that junk.",
+                    "Do I look like a sucker?",
+                    "The sheer audacity of kids these days.",
                 ],
                 farewells: [
                     "Until next time.",

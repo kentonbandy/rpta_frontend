@@ -13,13 +13,29 @@ export class Inventory {
         return [...this.mainInventory];
     }
 
-    // item can be item object or item id
+    /**
+     * Returns true if the inventory contains the item, false otherwise.
+     * Accepts an item object or an item ID.
+     * @param {object/int} item 
+     * @returns 
+     */
     hasItem(item) {
         const itemId = item.id ?? item;
         return this.items().some(i => i.id === itemId);
     }
 
-    findItemByName(itemAlias) {
+    getItemById(itemId) {
+        return this.items().find(i => i.id === itemId);
+    }
+
+    /**
+     * Finds and returns an item object if found; otherwise returns undefined.
+     * Can be used to determine whether the inventory includes the item.
+     * @param {string} itemAlias
+     * @returns 
+     */
+    getItemByName(itemAlias) {
+        console.log(itemAlias);
         return this.items().find(i => i.aliases.includes(itemAlias.toLowerCase()));
     }
 
