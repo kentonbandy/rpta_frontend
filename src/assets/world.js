@@ -2,12 +2,13 @@ export default {
     game: {
         startingLocation: 1,
         startingInventory: [{ id: 1, qty: 1 }],
+        startingEquipment: { armor: 20, weapon: 19 },
         startingCurrency: 10,
         locations: [
             {
                 id: 1,
                 name: "WHS",
-                description: "You're in front of a red brick school that has bees painted all over the interior. The vice principal is walking toward you.",
+                description: "You're in front of a red brick school that has bees painted all over the interior. A sign nearby says, 'Williamsville High School'. The vice principal is walking toward you.",
                 isSafe: true,
                 items: [],
                 enemies: ["Vice Principal"],
@@ -122,7 +123,7 @@ export default {
                 name: "Inside Wood's House",
                 description: "As expected, you see Wood and Zach at the dining room table, laptops out, playing World of Gamecraft. Fresh ribs have just come out of the oven and are resting on the counter. Wood and Zach beckon you to join them.",
                 isSafe: true,
-                items: [{ id: 1, qty: 1 }, { id: 2, qty: 1 }],
+                items: [{ id: 1, qty: 1 }, { id: 2, qty: 1 }, { id: 10, qty: 1 }],
                 enemies: [],
                 exits: [
                     { direction: "outside", locationId: 9, condition: null, visible: true },
@@ -165,8 +166,157 @@ export default {
                 ]
             },
         ],
+        attacks: [
+            // Backpack
+            {
+                id: 1,
+                name: "Backpack Bash",
+                prompt: "A crushing blow with a backpack full of books!",
+                power: 2,
+                mpCost: 0,
+            },
+            {
+                id: 2,
+                name: "Throw Book",
+                prompt: "A hardcover textbook to the face! Ouch.",
+                power: 4,
+                mpCost: 5,
+            },
+            // Stick
+            {
+                id: 3,
+                name: "Thwack",
+                prompt: "Slapped with a stick!",
+                power: 3,
+                mpCost: 0,
+            },
+            {
+                id: 4,
+                name: "Crisscross",
+                prompt: "Twho thwacks in opposing directions!",
+                power: 5,
+                mpCost: 7,
+            },
+            // Mellophone
+            {
+                id: 5,
+                name: "Blast",
+                prompt: "A disorienting sonic blast!",
+                power: 6,
+                mpCost: 0,
+            },
+            {
+                id: 6,
+                name: "Energy Burst",
+                prompt: "The mellophone begins to glow as it absorbs energy... and releases it in a devastating giant beam out of the bell!",
+                power: 10,
+                mpCost: 15,
+            },
+            // Clip-on Tie
+            {
+                id: 7,
+                name: "Give Detention",
+                prompt: "Straight to Detention!",
+                power: 8,
+                mpCost: 0,
+            },
+            {
+                id: 8,
+                name: "Call parents",
+                prompt: "Your child has been very very naughty!",
+                power: 12,
+                mpCost: 6,
+            },
+            // Tiny Fangs
+            {
+                id: 9,
+                name: "Ankle Bite",
+                prompt: "That's gonna hurt in the morning!",
+                power: 12,
+                mpCost: 0
+            },
+            {
+                id: 10,
+                name: "Threatening Aura",
+                prompt: "Hostile vibes extend in all directions in an explosive blast!",
+                power: 10,
+                mpCost: 0,
+            },
+            {
+                id: 11,
+                name: "Pee on Leg",
+                prompt: "That smells awful!",
+                power: 12,
+                mpCost: 6,
+            },
+            // Teen Angst
+            {
+                id: 12,
+                name: "Call Names",
+                prompt: "Wow, name calling is so mean!",
+                power: 2,
+                mpCost: 0,
+            },
+            {
+                id: 13,
+                name: "Crude Joke",
+                prompt: "Part of a balanced public school education!",
+                power: 3,
+                mpCost: 3,
+            },
+            {
+                id: 14,
+                name: "Threatening Odor",
+                prompt: "Breathing is painful!",
+                power: 4,
+                mpCost: 5,
+            },
+            // Glasses
+            {
+                id: 15,
+                name: "Corrects Grammar",
+                prompt: "A grammatical error comes at a cost... in HP!",
+                power: 1,
+                mpCost: 0,
+            },
+            {
+                id: 16,
+                name: "Thick Lenses",
+                prompt: "The sun catches the lenses at the perfect angle, creating a death ray!",
+                power: 3,
+                mpCost: 4,
+            },
+            {
+                id: 17,
+                name: "Steal WiFi",
+                prompt: "A laptop appears... password cracked... WiFi stolen!",
+                power: 4,
+                mpCost: 5,
+            },
+            // Ego
+            {
+                id: 18,
+                name: "Muscle Flex",
+                prompt: "Those muscles are too big to handle!",
+                power: 2,
+                mpCost: 0,
+            },
+            {
+                id: 19,
+                name: "Football",
+                prompt: "A football smashes into its target as only a third-stringer could throw it!",
+                power: 3,
+                mpCost: 4,
+            },
+            {
+                id: 20,
+                name: "Bench",
+                prompt: "You've been bench pressed! How does this cause damage? No one knows!",
+                power: 5,
+                mpCost: 6,
+            },
+        ],
         items: [
-            // add use aliases to usable items, for example: edible items would have 'eat', drinks would have 'drink', etc
             {
                 id: 1,
                 name: "Snack",
@@ -176,7 +326,7 @@ export default {
                 price: 10,
                 effect: 5,
                 // convention: include name, all aliases lowercase
-                aliases: ["snack", "bar", "snack bar"]
+                aliases: ["snack", "bar", "snack bar"],
             },
             {
                 id: 2,
@@ -186,7 +336,7 @@ export default {
                 type: "potion",
                 price: 10,
                 effect: 5,
-                aliases: ["soda", "pop", "surge", "can"]
+                aliases: ["soda", "pop", "surge", "can"],
             },
             {
                 id: 3,
@@ -196,7 +346,7 @@ export default {
                 type: "armor",
                 price: 15,
                 effect: 10,
-                aliases: ["police helmet", "helmet"]
+                aliases: ["police helmet", "helmet"],
             },
             {
                 id: 4,
@@ -204,21 +354,19 @@ export default {
                 description: "It's like a french horn for marching band, also played by Chuck Mangione. These are its total use cases outside of combat.",
                 locationText: "You spot Farr's mellophone. With a bell that big, a blast from that thing would probably do some damage.",
                 type: "weapon",
-                price: 15,
-                attacks: [
-                    { name: "Blast", effect: 20 },
-                    { name: "Energy Burst", effect: 25 }
-                ],
-                aliases: ["mellophone", "horn"]
+                price: 20,
+                attacks: [5, 6],
+                aliases: ["mellophone", "horn"],
             },
             {
                 id: 5,
                 name: "Stick",
                 description: "A stick, about an arm's length.",
                 locationText: "A stick is lying on the ground. Seems like the kind of stick a dog would love to chew on.",
-                type: "key",
-                price: null,
-                aliases: ["stick", "branch"]
+                type: "weapon",
+                price: 1,
+                attacks: [3, 4],
+                aliases: ["stick", "branch"],
             },
             {
                 id: 6,
@@ -228,25 +376,7 @@ export default {
                 type: "potion",
                 price: 5,
                 effect: 5,
-                aliases: ["coffee"]
-            },
-            {
-                id: 7,
-                name: "Collar",
-                description: "It's definitely some kind of collar, but a bit larger than a dog's neck. What could it be for?",
-                locationText: "You see a large collar.",
-                type: "key",
-                price: null,
-                aliases: ["collar"]
-            },
-            {
-                id: 8,
-                name: "Unicorn",
-                description: "Holy cow, a unicorn?! You definitely didn't think these things were real. You should probably take this to a safe place before anyone sees it.",
-                locationText: "No big deal, but there's a unicorn here.",
-                type: "key",
-                price: null,
-                aliases: ["unicorn"]
+                aliases: ["coffee"],
             },
             {
                 id: 9,
@@ -265,7 +395,97 @@ export default {
                 type: "food",
                 price: null,
                 aliases: ["ribs", "rib"],
-            }
+            },
+            {
+                id: 11,
+                name: "Blazer",
+                description: "A blazer at least a decade out of style.",
+                type: "armor",
+                effect: 12,
+                price: 20,
+                aliases: ["blazer", "jacket"],
+            },
+            {
+                id: 12,
+                name: "Clip-on Tie",
+                description: "A fashion decision that is somehow simultaneously tacky and too formal for the setting.",
+                type: "weapon",
+                price: 20,
+                attacks: [7, 8],
+                aliases: ["clip-on tie", "tie", "clip-on", "clipon"],
+            },
+            {
+                id: 13,
+                name: "Spike Choker",
+                description: "It's like a pointy dog collar but for humans. It's edgy, I guess.",
+                type: "armor",
+                effect: 3,
+                price: 5,
+                aliases: ["spike choker", "choker"],
+            },
+            {
+                id: 14,
+                name: "Teen Angst",
+                description: "A powerful anti-establishment force stemming from puberty and counter culture.",
+                type: "weapon",
+                price: 5,
+                attacks: [12, 13, 14],
+                aliases: ["teen angst", "angst"],
+            },
+            {
+                id: 15,
+                name: "Pocket Protector",
+                description: "Do they still make these things? A sturdy piece of plastic that goes in a shirt pocket and holds pens.",
+                type: "armor",
+                effect: 4,
+                price: 5,
+                aliases: ["pocket protector", "protector", "pocket"],
+            },
+            {
+                id: 16,
+                name: "Glasses",
+                description: "A pair of bombastic bifocals.",
+                type: "weapon",
+                price: 10,
+                attacks: [15, 16, 17],
+                aliases: ["glasses", "spectacles"],
+            },
+            {
+                id: 17,
+                name: "Shoulder Pads",
+                description: "Big, bulky shoulder pads designed to absorb impacts. Ironically worn by people with already gigantic shoulders.",
+                type: "armor",
+                effect: 3,
+                price: 10,
+                aliases: ["shoulder pads", "pads"],
+            },
+            {
+                id: 18,
+                name: "Ego",
+                description: "The first step in succeeding is believing you can. This ego is inflated to the point of bursting.",
+                type: "weapon",
+                price: 5,
+                attacks: [18, 19, 20],
+                aliases: ["ego"],
+            },
+            {
+                id: 19,
+                name: "Backpack",
+                description: "A worn-out Jansport backpack full of books.",
+                type: "weapon",
+                price: 1,
+                attacks: [1, 2],
+                aliases: ["backpack", "pack", "bookbag", "bag"]
+            },
+            {
+                id: 20,
+                name: "Tee Shirt",
+                description: "A black tee shirt with System of a Down on the front.",
+                type: "armor",
+                effect: 2,
+                price: 1,
+                aliases: ["tee shirt", "shirt", "tee"]
+            },
         ],
         containers: [
             {
@@ -321,7 +541,8 @@ export default {
             sw: "southwest",
             nw: "northwest",
             out: "outside",
-            in: "inside"
+            in: "inside",
+            enter: "inside",
         },
         conditions: [
             {
@@ -341,11 +562,17 @@ export default {
             item: "item",
             stat: "stat",
             container: "container",
+            shop: "shop",
+            explore: "explore",
+            examine: "examine",
             // aliases for player commands - when aliases are in list form, index 0 is default
             look: ["look", "l", "description", "location", "area"],
             get: ["get", "grab", "take", "acquire", "cop"],
-            drop: ["drop", "throw", "dump", "remove", "eject", "yeet"],
-            examine: ["examine", "x", "inspect"],
+            drop: ["drop", "throw", "dump", "eject", "yeet"],
+            examineCommands: ["examine", "x", "inspect"],
+            shopBuy: ['buy', 'purchase', 'get'],
+            shopSell: ['sell'],
+            shopLeave: ['leave', 'done', 'quit'],
             // syntax: put {item} {container}
             put: ["put", "place", "insert", "set"],
             talk: ["talk", "speak", "chat", "converse"],
@@ -353,7 +580,7 @@ export default {
             weapon: "weapon",
             equip: ["equip"],
             equipped: ["equipped"],
-            unequip: ["unequip"],
+            unequip: ["unequip", "remove"],
             unequipped: ["unequipped"],
             useItem: {
                 food: ["use", "consume", "eat"],
@@ -366,7 +593,63 @@ export default {
             singular: "dollar",
             plural: "dollars"
         },
-        enemies: [],
+        enemies: [
+            {
+                id: 1,
+                name: "Vice Principal",
+                aliases: ["vice principle", "vice", "principal"],
+                description: "An overdressed man with a thick southern accent. From what you can tell, he despises kids.",
+                items: [],
+                currency: 100,
+                battleMessage: "The vice principal is trying to give you detention!",
+                armor: 11,
+                weapon: 12,
+            },
+            {
+                id: 2,
+                name: "Tank",
+                aliases: ["tank", "dog"],
+                description: "A small, white dog with an ironic name.",
+                items: [],
+                currency: 50,
+                battleMessage: "Tank charges toward you and bares his tiny fangs!",
+                armor: null,
+                weapon: null,
+            },
+            {
+                id: 3,
+                name: "Punk Kid",
+                aliases: ["punk kid", "kid", "punk"],
+                description: "A kid who's clearly looking for trouble. Wears a spike choker and is poised to battle with weaponized teen angst.",
+                items: [],
+                currency: 10,
+                battleMessage: "A Punk Kid is looking for a fight!",
+                armor: 13,
+                weapon: 14,
+            },
+            {
+                id: 4,
+                name: "Nerd",
+                aliases: ["nerd"],
+                description: "This kid has everything: thick glasses, pocket protector, and it looks like there's a laptop in their backpack.",
+                items: [],
+                currency: 10,
+                battleMessage: "For some reason a Nerd is looking for trouble and they found you!",
+                armor: 15,
+                weapon: 16,
+            },
+            {
+                id: 5,
+                name: "Jock",
+                aliases: ["jock"],
+                description: "Great, a meathead who spends half their time in the weight room has challenged you to a fight. Good luck!",
+                items: [],
+                currency: 10,
+                battleMessage: "A muscly Jock is squaring up and pounding their fist!",
+                armor: 17,
+                weapon: 18,
+            }
+        ],
         npcs: [
             {
                 id: 1,
